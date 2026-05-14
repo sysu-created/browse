@@ -1,3 +1,4 @@
 https://github.com/argomaintainer/frgg-search/
 https://github.com/sysu-created/YaH3C/
-https://github.com/argomaintainer/bbssrc
+https://github.com/argomaintainer/bbssrc/
+https://github.com/argomaintainer/websrc/
