@@ -22,6 +22,10 @@
 3. 使用自定义模板生成静态网页
 4. 部署到 GitHub Pages
 
+## 浏览网站
+
+<https://sysu-created.github.io/browse/>
+
 ## 项目结构
 
 ```
