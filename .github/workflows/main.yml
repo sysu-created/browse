@@ -1,0 +1,67 @@
+name: Build and Deploy to Pages
+
+on:
+  push:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    
+    steps:
+      # 先 checkout 自己的代码（包含 input.txt）
+      - name: Checkout own repository
+        uses: actions/checkout@v4
+      
+      # 设置工作目录
+      - name: Create workspace
+        run: |
+          mkdir -p ${{ runner.temp }}/workspace
+          cp input.txt ${{ runner.temp }}/workspace/
+      
+      # 拉取工具项目
+      - name: Clone tool repository
+        run: |
+          cd ${{ runner.temp }}/workspace
+          git clone https://github.com/sysu/legacy.json.git
+      
+      # 安装依赖
+      - name: Install Python dependencies
+        run: |
+          cd ${{ runner.temp }}/workspace/legacy.json
+          pip install -r requirements.txt
+      
+      # 下载 json
+      - name: Download JSON files
+        run: |
+          cd ${{ runner.temp }}/workspace/legacy.json/tools/genpages
+          python genpages.py --input ../../../input.txt --output ../../../dist download
+      
+      # 构建网页
+      - name: Build pages
+        run: |
+          cd ${{ runner.temp }}/workspace/legacy.json/tools/genpages
+          python genpages.py --input ../../../input.txt --output ../../../dist build
+      
+      # 上传并部署
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ runner.temp }}/workspace/dist
+      
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
